@@ -25,24 +25,17 @@ const SCOPES: [&str; 15] = [
     "user-library-modify",
 ];
 
+
 pub async fn get_token_librespot(
     session: &Session,
-    client_id: &str,
+    _client_id: &str,
 ) -> Result<librespot_core::token::Token> {
-    let query_uri = format!(
-        "hm://keymaster/token/authenticated?scope={}&client_id={}&device_id={}",
-        SCOPES.join(","),
-        client_id,
-        session.device_id(),
-    );
-    let request = session.mercury().get(query_uri)?;
-    let response = request.await?;
-    let data = response
-        .payload
-        .first()
-        .ok_or(librespot_core::token::TokenError::Empty)?
-        .clone();
-    let token = librespot_core::token::Token::from_json(String::from_utf8(data)?)?;
+    let auth_data = session.auth_data();
+    if auth_data.is_empty() {
+        anyhow::bail!("Session has no stored credentials for login5 token acquisition");
+    }
+    
+    let token = session.login5().auth_token().await.unwrap();
     Ok(token)
 }
 
