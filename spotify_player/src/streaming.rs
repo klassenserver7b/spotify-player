@@ -1,4 +1,4 @@
-use crate::{client::Client, config, state::SharedState};
+use crate::{client::AppClient, config, state::SharedState};
 use anyhow::Context;
 use librespot_connect::{ConnectConfig, Spirc};
 use librespot_core::authentication::Credentials;
@@ -140,7 +140,7 @@ fn execute_player_event_hook_command(
 
 /// Create a new streaming connection
 pub async fn new_connection(
-    client: Client,
+    client: AppClient,
     state: SharedState,
     session: Session,
     creds: Credentials,
@@ -167,7 +167,9 @@ pub async fn new_connection(
 
     tracing::info!("Application's connect configurations: {:?}", connect_config);
 
-    let mixer = Arc::new(mixer::softmixer::SoftMixer::open(MixerConfig::default()).context("opening softmixer")?);
+    let mixer = Arc::new(
+        mixer::softmixer::SoftMixer::open(MixerConfig::default()).context("opening softmixer")?,
+    );
     mixer.set_volume(volume);
 
     let backend = audio_backend::find(None).expect("should be able to find an audio backend");
