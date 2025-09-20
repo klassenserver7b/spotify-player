@@ -116,4 +116,3 @@ pub fn get_creds(auth_config: &AuthConfig, reauth: bool, use_cached: bool) -> Re
         }
     })
 }
-
